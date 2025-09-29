@@ -1,8 +1,9 @@
 #pragma once
 
 template <typename Action>
-struct ByDefault
+class by_default
 {
+public:
 	template <typename Event>
 	Action handle(const Event&) const
 	{

@@ -1,8 +1,9 @@
 #pragma once
 
 template <typename... Handlers>
-struct Will : Handlers...
+class will : public Handlers...
 {
+public:
 	using Handlers::handle...;
 };
 

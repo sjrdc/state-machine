@@ -6,12 +6,12 @@
 #include <variant>
 
 template <typename... States>
-class StateMachine
+class state_machine
 {
 public:
-    StateMachine() = default;
+    state_machine() = default;
 
-    StateMachine(States... states)
+    state_machine(States... states)
         : states(std::move(states)...)
     {
     }

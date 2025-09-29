@@ -2,10 +2,11 @@
 
 int main()
 {
-    Door door{ClosedState{}, OpenState{}, LockedState{0}};
+    door door{closed_state{}, open_state{}, locked_state{0}};
 
-    door.handle(LockEvent{1234});
-    door.handle(UnlockEvent{2});
-    door.handle(UnlockEvent{1234});
+    door.handle(lock_event{1234});
+    door.handle(unlock_event{2});
+    door.handle(unlock_event{1234});
+
     return 0;
 }

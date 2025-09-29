@@ -1,10 +1,12 @@
 #pragma once
 
 #include <fsm/types/Types.h>
+
 #include <utility>
 
-struct ResolveAction
+class resolve_action
 {
+public:
     template <typename State, typename Event>
     constexpr auto operator()(Types<State, Event>)
     {

@@ -1,11 +1,12 @@
 #pragma once
 
-struct Nothing
+class do_nothing
 {
+public:
 	template <typename Machine, typename State, typename Event>
 	void execute(Machine&, State&, const Event&)
 	{
 	}
 };
 
-static constexpr auto stringify(Types<Nothing>) { return StaticString{"Nothing"}; }
+static constexpr auto stringify(Types<do_nothing>) { return StaticString{"do_nothing"}; }

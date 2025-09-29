@@ -1,73 +1,73 @@
 #pragma once
 
+#include "fsm/state_machine.h"
+#include "fsm/actions/do_nothing.h"
+#include "fsm/actions/transition_to.h"
+#include "fsm/actions/may.h"
+#include "fsm/actions/by_default.h"
+#include "fsm/actions/on.h"
+#include "fsm/actions/will.h"
+
 #include <cstdint>
 
-#include "fsm/StateMachine.h"
-#include "fsm/actions/Nothing.h"
-#include "fsm/actions/TransitionTo.h"
-#include "fsm/actions/Maybe.h"
-#include "fsm/actions/ByDefault.h"
-#include "fsm/actions/On.h"
-#include "fsm/actions/Will.h"
-
-struct OpenEvent
+struct open_event
 {
 };
 
-struct CloseEvent
+struct close_event
 {
 };
 
-struct LockEvent
+struct lock_event
 {
-    uint32_t newKey;    
+    uint32_t new_key;    
 };
 
-struct UnlockEvent
+struct unlock_event
 {
     uint32_t key;    
 };
 
-struct ClosedState;
-struct OpenState;
-class LockedState;
+struct closed_state;
+struct open_state;
+class locked_state;
 
-struct ClosedState : public Will<ByDefault<Nothing>,
-                                 On<LockEvent, TransitionTo<LockedState>>,
-                                 On<OpenEvent, TransitionTo<OpenState>>>
+struct closed_state : public will<by_default<do_nothing>,
+                                 on<lock_event, transition_to<locked_state>>,
+                                 on<open_event, transition_to<open_state>>>
 {
 };
 
-struct OpenState : public Will<ByDefault<Nothing>,
-                               On<CloseEvent, TransitionTo<ClosedState>>>
+struct open_state : public will<by_default<do_nothing>,
+                               on<close_event, transition_to<closed_state>>>
 {
 };
 
-class LockedState : public ByDefault<Nothing>
+class locked_state : public by_default<do_nothing>
 {
 public:
-    using ByDefault::handle;
+    using by_default::handle;
 
-    LockedState(uint32_t key)
+    locked_state(uint32_t key)
         : key(key)
     {
     }
 
-    void onEnter(const LockEvent& e)
+    void on_enter(const lock_event& e)
     {
-        key = e.newKey;
+        key = e.new_key;
     }
 
-    Maybe<TransitionTo<ClosedState>> handle(const UnlockEvent& e)
+    may<transition_to<closed_state>> handle(const unlock_event& e)
     {
         if (e.key == key) {
-            return TransitionTo<ClosedState>{};
+            return transition_to<closed_state>{};
         }
-        return Nothing{};
+        return do_nothing{};
     }
 
 private:
     uint32_t key;
 };
 
-using Door = StateMachine<ClosedState, OpenState, LockedState>;
+using door = state_machine<closed_state, open_state, locked_state>;

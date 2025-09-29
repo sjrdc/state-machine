@@ -1,12 +1,12 @@
-#include <fsm/utils/StaticString.h>
+#include <fsm/utils/static_string.h>
 #include <cstdio>
 
 void test()
 {
-    constexpr StaticString first{"<"};
-    constexpr StaticString second{"hello"};
-    constexpr StaticString third{">"};
-    constexpr StaticString result = first + second + third;
+    constexpr static_string first{"<"};
+    constexpr static_string second{"hello"};
+    constexpr static_string third{">"};
+    constexpr static_string result = first + second + third;
     puts(result.data());
 }
 

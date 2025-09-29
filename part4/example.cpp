@@ -1,7 +1,6 @@
 #include <fsm/types/Types.h>
 #include <fsm/actions/utils.h>
 #include <fsm/types/utils.h>
-#include <fsm/utils/arrayUtils.h>
 #include <fsm/utils/StaticString.h>
 
 #include "Door.h"
@@ -68,7 +67,7 @@ public:
     template <typename Event>
     constexpr auto operator()(Types<Event>) const
     {
-        auto action = ResolveAction{}(Types<Types<State, Event>>{});
+        auto action = resolve_action{}(Types<Types<State, Event>>{});
         return StaticString{" | "} + str(action);
     }
 
@@ -154,7 +153,7 @@ constexpr auto generateTransitionTable(Types<StateTypes...> states, Types<EventT
 template <typename... StateTypes, typename... EventTypes>
 constexpr auto generatePrettyTransitionTable(Types<StateTypes...> states, Types<EventTypes...> events)
 {
-    constexpr auto actions = (states * events) | MapAndJoin(ResolveAction{});
+    constexpr auto actions = (states * events) | MapAndJoin(resolve_action{});
     constexpr auto maxWidth = (states + events + actions) | MapAndJoin(CalculateMaxLength{});
     constexpr ConstantWidthStringifier<maxWidth.value()> stringifier{};
     constexpr auto result = (Types<Header>{} + states) | MapAndJoin{GenerateTable{stringifier, events}};
@@ -163,7 +162,7 @@ constexpr auto generatePrettyTransitionTable(Types<StateTypes...> states, Types<
 
 int main()
 {
-    std::cout << generateTransitionTable(Door::getStateTypes(), Types<OpenEvent, CloseEvent, LockEvent, UnlockEvent>{}).data() << std::endl;
-    std::cout << generatePrettyTransitionTable(Door::getStateTypes(), Types<OpenEvent, CloseEvent, LockEvent, UnlockEvent>{}).data() << std::endl;
+    std::cout << generateTransitionTable(door::getStateTypes(), Types<OpenEvent, CloseEvent, LockEvent, UnlockEvent>{}).data() << std::endl;
+    std::cout << generatePrettyTransitionTable(door::getStateTypes(), Types<OpenEvent, CloseEvent, LockEvent, UnlockEvent>{}).data() << std::endl;
     return 0;
 }

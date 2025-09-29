@@ -1,11 +1,12 @@
 #pragma once
 
-template <typename Action>
-struct ByDefault
+template <typename Event, typename Action>
+class on
 {
-	template <typename Event>
+public:
 	Action handle(const Event&) const
 	{
 		return Action{};
 	}
 };
+

@@ -1,7 +1,7 @@
 #pragma once
 
 template <typename Event, typename Action>
-struct On
+struct on
 {
 	Action handle(const Event&) const
 	{

@@ -4,21 +4,21 @@
 #include <variant>
 
 template <typename... Actions>
-class OneOf
+class one_of
 {
 public:
 	template <typename T>
-	OneOf(T&& arg)
-		: options(std::forward<T>(arg))
+	one_of(T&& arg)
+		: actions(std::forward<T>(arg))
 	{
 	}
 
 	template <typename Machine, typename State, typename Event>
 	void execute(Machine& machine, State& state, const Event& event)
 	{
-		std::visit([&machine, &state, &event](auto& action){ action.execute(machine, state, event); }, options);
+		std::visit([&machine, &state, &event](auto& action){ action.execute(machine, state, event); }, actions);
 	}
 
 private:
-	std::variant<Actions...> options;
+	std::variant<Actions...> actions;
 };
