@@ -1,7 +1,7 @@
 #include <fsm/utils/StaticString.h>
 #include <cstdio>
 
-__attribute__((noinline)) void test()
+void test()
 {
     constexpr StaticString first{"<"};
     constexpr StaticString second{"hello"};

@@ -1,18 +1,13 @@
 #include <fsm/types/Types.h>
 #include <fsm/actions/utils.h>
 #include <fsm/types/utils.h>
+#include <fsm/utils/arrayUtils.h>
 #include <fsm/utils/StaticString.h>
 
 #include "Door.h"
 
 #include <iostream>
-#include <type_traits>
 
-template <typename T>
-void debug(T&&)
-{
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
-}
 
 #define STRINGIFY_IMPL(TYPE) [[maybe_unused]] static constexpr auto stringify(Types<TYPE>) { return StaticString{#TYPE}; }
 
