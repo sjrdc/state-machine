@@ -2,7 +2,6 @@
 
 #include "gtest/gtest.h"
 
-
 TEST(static_string, can_concatenate)
 {
     constexpr static_string lhs{ "abc" };
