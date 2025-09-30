@@ -1,6 +1,8 @@
 #pragma once
 
-#include <fsm/types/Types.h>
+#include "fsm/types/types.h"
+#include "fsm/utils/static_string.h"
+
 
 template <typename TargetState>
 class transition_to
@@ -37,4 +39,4 @@ private:
 };
 
 template <typename State>
-static constexpr auto stringify(Types<transition_to<State>>) { return static_string{"transition_to<"} + stringify(Types<State>{}) + static_string{">"}; }
+static constexpr auto stringify(types<transition_to<State>>) { return static_string{"transition_to<"} + stringify(types<State>{}) + static_string{">"}; }

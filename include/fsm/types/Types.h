@@ -3,36 +3,36 @@
 #include <cstddef>
 
 template <typename... Ts>
-struct Types
+struct types
 {
 };
 
 template <typename... Lhs, typename... Rhs>
-constexpr auto operator+(Types<Lhs...>, Types<Rhs...>)
+constexpr auto operator+(types<Lhs...>, types<Rhs...>)
 {
-    return Types<Lhs..., Rhs...>{};
+    return types<Lhs..., Rhs...>{};
 }
 
 template <typename Lhs, typename... Rhs>
-constexpr auto operator*(Types<Lhs>, Types<Rhs...>)
+constexpr auto operator*(types<Lhs>, types<Rhs...>)
 {
-    return Types<Types<Lhs, Rhs>...>{};
+    return types<types<Lhs, Rhs>...>{};
 }
 
 template <typename... Lhs, typename Rhs>
-constexpr auto operator*(Types<Lhs...>, Rhs rhs)
+constexpr auto operator*(types<Lhs...>, Rhs rhs)
 {
-    return ((Types<Lhs>{} * rhs) + ...);
+    return ((types<Lhs>{} * rhs) + ...);
 }
 
 template <typename... Ts, typename Operation>
-constexpr auto operator|(Types<Ts...>, Operation oper)
+constexpr auto operator|(types<Ts...>, Operation oper)
 {
-    return oper(Types<Ts>{}...);
+    return oper(types<Ts>{}...);
 }
 
 template <typename... Ts>
-constexpr std::size_t size(Types<Ts...>)
+constexpr std::size_t size(types<Ts...>)
 {
     return sizeof...(Ts);
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fsm/types/Types.h>
+#include "fsm/types/types.h"
 
 #include <tuple>
 #include <variant>
@@ -40,7 +40,7 @@ public:
         std::visit(passEventToState, currentState);
     }
 
-    constexpr static Types<States...> getStateTypes() { return {}; }
+    constexpr static types<States...> getStateTypes() { return {}; }
 
 private:
     std::tuple<States...> states;

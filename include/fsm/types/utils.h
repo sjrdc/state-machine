@@ -1,18 +1,18 @@
 #pragma once
 
-#include <fsm/types/Types.h>
+#include "fsm/types/types.h"
 
 template <typename Operation>
-class MapAndJoin
+class map_and_join
 {
 public:
-    constexpr MapAndJoin(Operation operation)
+    constexpr map_and_join(Operation operation)
         : operation(operation)
     {
     }
 
     template <typename... Ts>
-    constexpr auto operator()(Types<Ts>... rhs)
+    constexpr auto operator()(types<Ts>... rhs)
     {
         return (operation(rhs) + ...);
     }

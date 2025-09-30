@@ -1,5 +1,8 @@
 #pragma once
 
+#include "fsm/types/types.h"
+#include "fsm/utils/static_string.h"
+
 class do_nothing
 {
 public:
@@ -9,4 +12,4 @@ public:
 	}
 };
 
-static constexpr auto stringify(Types<do_nothing>) { return static_string{"do_nothing"}; }
+static constexpr auto stringify(types<do_nothing>) { return static_string{"do_nothing"}; }

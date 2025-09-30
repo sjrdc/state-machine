@@ -25,55 +25,55 @@ Most of the time, we think of a type as just a label that's attached to an under
 
 ```cpp
 template <typename... Ts>
-struct Types
+struct types
 {
 };
 ```
 
-We'll use this structure to bind several types together and manipulate them as a set. Even though it's not a perfect representation of a set (`Types<A, B> != Types<B, A> != Types<B, A, A>`) it's more than enough for our use :) . The first operation we'd need is combining several types into one, which could be implemented like this:
+We'll use this structure to bind several types together and manipulate them as a set. Even though it's not a perfect representation of a set (`Types<A, B> != types<B, A> != types<B, A, A>`) it's more than enough for our use :) . The first operation we'd need is combining several types into one, which could be implemented like this:
 
 ```cpp
 template <typename... Lhs, typename... Rhs>
-constexpr auto operator+(Types<Lhs...>, Types<Rhs...>)
+constexpr auto operator+(types<Lhs...>, types<Rhs...>)
 {
-    return Types<Lhs..., Rhs...>{};
+    return types<Lhs..., Rhs...>{};
 }
 ```
 
 Now it's time to get creative :). As you remember, a transition function accepts a pair of a state and an event. In other words, the domain of such function is the cartesian product of two sets - states and events. What we're trying to achieve here is something along these lines:
 ```
-Types<White, Black> * Types<Cat, Dog> = Types<Types<White, Cat>, Types<White, Dog>, Types<Black, Cat>, Types<Black, Dog>>
+Types<White, Black> * types<Cat, Dog> = types<types<White, Cat>, types<White, Dog>, types<Black, Cat>, types<Black, Dog>>
 ```
 The reason we need to nest the `Types` structure is that we don't want to lose information on how individual types are grouped while still being able to return a single 'type' that corresponds to the result of the cartesian product. 
 
 Let's start with something simpler:
 
 ```
-Types<A> * Types<B1, ..., Bn> = Types<Types<A, B>, ..., Types<A, Bn>>
+Types<A> * types<B1, ..., Bn> = types<types<A, B>, ..., types<A, Bn>>
 ```
 
 It's pretty straightforward. If we have only 1 type on the left we just need to append that type to all types on the right:
 
 ```cpp
 template <typename Lhs, typename... Rhs>
-constexpr auto operator*(Types<Lhs>, Types<Rhs...>)
+constexpr auto operator*(types<Lhs>, types<Rhs...>)
 {
-    return Types<Types<Lhs, Rhs>...>{};
+    return types<types<Lhs, Rhs>...>{};
 }
 ```
 
 So now what if we have multiple types on the left? We just need to extract each one on the left side, process it as it was a single type, and combine the results
 ```
-Types<A1, ..., Am> * Types<B1, ..., Bn> = Types<A1> * Types<B1, ..., Bn> + ... + Types<Am> * Types<B1, ..., Bn>
+Types<A1, ..., Am> * types<B1, ..., Bn> = types<A1> * types<B1, ..., Bn> + ... + types<Am> * types<B1, ..., Bn>
 ```
 
 This is quite easy to implement by using fold expressions from C++17:
 
 ```cpp
 template <typename... Lhs, typename Rhs>
-constexpr auto operator*(Types<Lhs...>, Rhs rhs)
+constexpr auto operator*(types<Lhs...>, Rhs rhs)
 {
-    return ((Types<Lhs>{} * rhs) + ...);
+    return ((types<Lhs>{} * rhs) + ...);
 }
 ```
 
@@ -85,7 +85,7 @@ class StateMachine
 {
 public:
 /*...*/
-    constexpr static Types<States...> getStateTypes() { return {}; }
+    constexpr static types<States...> getStateTypes() { return {}; }
 /*...*/
 };
 ```
@@ -113,7 +113,7 @@ debug(stateTypes * eventTypes);
 We should see an output similar to this:
 
 ```
-void debug(T &&) [T = Types<Types<ClosedState, OpenEvent>, Types<ClosedState, CloseEvent>, Types<ClosedState, LockEvent>, Types<ClosedState, UnlockEvent>, Types<OpenState, OpenEvent>, Types<OpenState, CloseEvent>, Types<OpenState, LockEvent>, Types<OpenState, UnlockEvent>, Types<LockedState, OpenEvent>, Types<LockedState, CloseEvent>, Types<LockedState, LockEvent>, Types<LockedState, UnlockEvent> >]
+void debug(T &&) [T = types<types<ClosedState, OpenEvent>, types<ClosedState, CloseEvent>, types<ClosedState, LockEvent>, types<ClosedState, UnlockEvent>, types<OpenState, OpenEvent>, types<OpenState, CloseEvent>, types<OpenState, LockEvent>, types<OpenState, UnlockEvent>, types<LockedState, OpenEvent>, types<LockedState, CloseEvent>, types<LockedState, LockEvent>, types<LockedState, UnlockEvent> >]
 ```
 
 ## Making it functional
@@ -122,9 +122,9 @@ The biggest gain of having a dedicated object representing a set of possible typ
 
 ```cpp
 template <typename... Ts, typename Operation>
-constexpr auto operator|(Types<Ts...>, Operation oper)
+constexpr auto operator|(types<Ts...>, Operation oper)
 {
-    return oper(Types<Ts>{}...);
+    return oper(types<Ts>{}...);
 }
 ```
 
@@ -141,7 +141,7 @@ public:
     }
 
     template <typename... Ts>
-    constexpr auto operator()(Types<Ts>... rhs)
+    constexpr auto operator()(types<Ts>... rhs)
     {
         return (operation(rhs) + ...);
     }
@@ -159,24 +159,24 @@ The next step is to transform our set of state-event pairs into a set of underly
 struct ResolveAction
 {
     template <typename State, typename Event>
-    constexpr auto operator()(Types<State, Event>)
+    constexpr auto operator()(types<State, Event>)
     {
         using Action = decltype(std::declval<State>().handle(std::declval<Event>()));
-        return Types<Action>{};
+        return types<Action>{};
     }
 
     template <typename State, typename Event>
-    constexpr auto operator()(Types<Types<State, Event>>)
+    constexpr auto operator()(types<types<State, Event>>)
     {
-        return (*this)(Types<State, Event>{});
+        return (*this)(types<State, Event>{});
     }
 };
 ```
 
-`std::declval` allows us to 'pretend' that we have an object of a given type, which is handy, especially when dealing with overloaded functions such as `handle`. And why there's a double nested Types overload you might ask? It comes down to how `MapAndJoin` works. `Types<A, B, C>` will be converted to `oper(Types<A>{}) + oper(Types<B>{}) + oper(Types<C>{})`. Let's run it on our example and see how it works
+`std::declval` allows us to 'pretend' that we have an object of a given type, which is handy, especially when dealing with overloaded functions such as `handle`. And why there's a double nested types overload you might ask? It comes down to how `MapAndJoin` works. `Types<A, B, C>` will be converted to `oper(types<A>{}) + oper(types<B>{}) + oper(types<C>{})`. Let's run it on our example and see how it works
 
 ```
-void debug(T &&) [T = Types<TransitionTo<OpenState>, Nothing, TransitionTo<LockedState>, Nothing, Nothing, TransitionTo<ClosedState>, Nothing, Nothing, Nothing, Nothing, Nothing, Maybe<TransitionTo<ClosedState>>>]
+void debug(T &&) [T = types<TransitionTo<OpenState>, Nothing, TransitionTo<LockedState>, Nothing, Nothing, TransitionTo<ClosedState>, Nothing, Nothing, Nothing, Nothing, Nothing, Maybe<TransitionTo<ClosedState>>>]
 ```
 
 Awesome! :)
@@ -186,7 +186,7 @@ Awesome! :)
 Most of the work done so far was related to manipulating types. It's time to convert those types into compile-time strings that we can print later on. Let's assume that for user-defined states and events exists a 'stringification' function. To eliminate a bit of boilerplate, we can write a preprocessor macro to generate all the needed implementations:
 
 ```cpp
-#define STRINGIFY_IMPL(TYPE) static constexpr auto stringify(Types<TYPE>) { return StaticString{#TYPE}; }
+#define STRINGIFY_IMPL(TYPE) static constexpr auto stringify(types<TYPE>) { return StaticString{#TYPE}; }
 
 STRINGIFY_IMPL(OpenEvent)
 STRINGIFY_IMPL(CloseEvent)
@@ -202,12 +202,12 @@ Now, what about stringifying actions? It's a bit more difficult since actions ca
 
 ```cpp
 template <typename State>
-static constexpr auto stringify(Types<TransitionTo<State>>) { return StaticString{"TransitionTo<"} + stringify(Types<State>{}) + StaticString{">"}; }
+static constexpr auto stringify(types<TransitionTo<State>>) { return StaticString{"TransitionTo<"} + stringify(types<State>{}) + StaticString{">"}; }
 
 template <typename Action>
-static constexpr auto stringify(Types<Maybe<Action>>) { return StaticString{"Maybe<"} + stringify(Types<Action>{}) + StaticString{">"}; }
+static constexpr auto stringify(types<Maybe<Action>>) { return StaticString{"Maybe<"} + stringify(types<Action>{}) + StaticString{">"}; }
 
-static constexpr auto stringify(Types<Nothing>) { return StaticString{"Nothing"}; }
+static constexpr auto stringify(types<Nothing>) { return StaticString{"Nothing"}; }
 ```
 
 Assuming we know how to stringify each state, event, and action used in our example we can proceed to generate the transition table. The table itself will be quite simple. In the first row, we'll list all the events and in the first column, we'll list all the states. The rest will be actions executed when we handle a given event in a particular state. Since both the first row and first column are displayed a bit differently, let's add a dummy marker type - `Header` to handle such cases. Additionally, in the future, we might want to change the format of the strings so let's create a separate `Stringifier` class that'd responsible for generating all the strings:
@@ -218,13 +218,13 @@ struct Header {};
 
 struct SimpleStringifier
 {
-    constexpr auto operator()(Types<Header>) const
+    constexpr auto operator()(types<Header>) const
     {
         return StaticString{""};
     }
 
     template <typename T>
-    constexpr auto operator()(Types<T> type) const
+    constexpr auto operator()(types<T> type) const
     {
         return stringify(type);
     }
@@ -234,20 +234,20 @@ template <typename Stringifier, typename State>
 class GenerateRow
 {
 public:
-    constexpr GenerateRow(Stringifier str, Types<State>)
+    constexpr GenerateRow(Stringifier str, types<State>)
         : str(str)
     {
     }
 
-    constexpr auto operator()(Types<State> state) const
+    constexpr auto operator()(types<State> state) const
     {
         return str(state);
     }
 
     template <typename Event>
-    constexpr auto operator()(Types<Event>) const
+    constexpr auto operator()(types<Event>) const
     {
-        auto action = ResolveAction{}(Types<Types<State, Event>>{});
+        auto action = ResolveAction{}(types<types<State, Event>>{});
         return StaticString{" | "} + str(action);
     }
 
@@ -259,18 +259,18 @@ template <typename Stringifier>
 class GenerateRow<Stringifier, Header>
 {
 public:
-    constexpr GenerateRow(Stringifier str, Types<Header>)
+    constexpr GenerateRow(Stringifier str, types<Header>)
         : str(str)
     {
     }
 
-    constexpr auto operator()(Types<Header> header) const
+    constexpr auto operator()(types<Header> header) const
     {
         return str(header);
     }
 
     template <typename Event>
-    constexpr auto operator()(Types<Event> event) const
+    constexpr auto operator()(types<Event> event) const
     {
         return StaticString{" | "} + str(event);
     }
@@ -283,15 +283,15 @@ template <typename Stringifier, typename... Events>
 class GenerateTable
 {
 public:
-    constexpr GenerateTable(Stringifier str, Types<Events...>)
+    constexpr GenerateTable(Stringifier str, types<Events...>)
         : str(str)
     {
     }
 
     template <typename State>
-    constexpr auto operator()(Types<State> state) const
+    constexpr auto operator()(types<State> state) const
     {
-        return (Types<State, Events...>{} | MapAndJoin{GenerateRow{str, state}}) + StaticString{"\n"};
+        return (types<State, Events...>{} | MapAndJoin{GenerateRow{str, state}}) + StaticString{"\n"};
     }
 
 private:
@@ -299,16 +299,16 @@ private:
 };
 
 template <typename... StateTypes, typename... EventTypes>
-constexpr auto generateTransitionTable(Types<StateTypes...> states, Types<EventTypes...> events)
+constexpr auto generateTransitionTable(types<StateTypes...> states, types<EventTypes...> events)
 {
     constexpr SimpleStringifier stringifier;
-    constexpr auto result = (Types<Header>{} + states) | MapAndJoin{GenerateTable{stringifier, events}};
+    constexpr auto result = (types<Header>{} + states) | MapAndJoin{GenerateTable{stringifier, events}};
     return result;
 }
 
 int main()
 {
-    std::cout << generateTransitionTable(Door::getStateTypes(), Types<OpenEvent, CloseEvent, LockEvent, UnlockEvent>{}).data() << std::endl;
+    std::cout << generateTransitionTable(Door::getStateTypes(), types<OpenEvent, CloseEvent, LockEvent, UnlockEvent>{}).data() << std::endl;
     return 0;
 }
 ```
@@ -385,7 +385,7 @@ struct Maximum
 struct CalculateMaxLength
 {
     template <typename T>
-    constexpr auto operator()(Types<T> type)
+    constexpr auto operator()(types<T> type)
     {
         return Maximum<stringify(type).length()>{};
     }
@@ -408,25 +408,25 @@ The only thing left is to create a new 'stringifier' that will expand all the st
 template <std::size_t Width>
 struct ConstantWidthStringifier
 {
-    constexpr auto operator()(Types<Header>) const
+    constexpr auto operator()(types<Header>) const
     {
         return StaticString{""}.template changeLength<Width>(' ');
     }
 
     template <typename T>
-    constexpr auto operator()(Types<T> type) const
+    constexpr auto operator()(types<T> type) const
     {
         return stringify(type).template changeLength<Width>(' ');
     }
 };
 
 template <typename... StateTypes, typename... EventTypes>
-constexpr auto generatePrettyTransitionTable(Types<StateTypes...> states, Types<EventTypes...> events)
+constexpr auto generatePrettyTransitionTable(types<StateTypes...> states, types<EventTypes...> events)
 {
     constexpr auto actions = (states * events) | MapAndJoin(ResolveAction{});
     constexpr auto maxWidth = (states + events + actions) | MapAndJoin(CalculateMaxLength{});
     constexpr ConstantWidthStringifier<maxWidth.value()> stringifier{};
-    constexpr auto result = (Types<Header>{} + states) | MapAndJoin{GenerateTable{stringifier, events}};
+    constexpr auto result = (types<Header>{} + states) | MapAndJoin{GenerateTable{stringifier, events}};
     return result;
 }
 ```
