@@ -9,11 +9,11 @@ class transition_to
 {
 public:
 	template <typename Machine, typename State, typename Event>
-	void execute(Machine& machine, State& prevState, const Event& event)
+	void execute(Machine& machine, State& prev_state, const Event& event)
 	{
-        leave(prevState, event);
-		TargetState& newState = machine.template transitionTo<TargetState>();
-        enter(newState, event);
+        leave(prev_state, event);
+		auto& next_state = machine.template transitionTo<TargetState>();
+        enter(next_state, event);
 	}
 
 private:

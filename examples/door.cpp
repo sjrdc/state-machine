@@ -162,7 +162,7 @@ constexpr auto generate_pretty_transition_table(types<StateTypes...> states, typ
 
 int main()
 {
-    std::cout << generate_transition_table(door::getStateTypes(), types<open_event, close_event, lock_event, unlock_event>{}).data() << std::endl;
-    std::cout << generate_pretty_transition_table(door::getStateTypes(), types<open_event, close_event, lock_event, unlock_event>{}).data() << std::endl;
+    std::cout << generate_transition_table(door::get_state_types(), types<open_event, close_event, lock_event, unlock_event>{}).data() << std::endl;
+    std::cout << generate_pretty_transition_table(door::get_state_types(), types<open_event, close_event, lock_event, unlock_event>{}).data() << std::endl;
     return 0;
 }

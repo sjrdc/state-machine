@@ -11,4 +11,7 @@ public:
 };
 
 template <typename Action>
-static constexpr auto stringify(types<may<Action>>) { return static_string{"may<"} + stringify(types<Action>{}) + static_string{">"}; }
+static constexpr auto stringify(types<may<Action>>)
+{
+    return static_string{"may<"} + stringify(types<Action>{}) + static_string{">"};
+}

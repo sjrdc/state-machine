@@ -17,7 +17,7 @@ public:
     }
 
     template <typename State>
-    State& transitionTo()
+    State& transition_to()
     {
         State& state = std::get<State>(states);
         currentState = &state;
@@ -40,7 +40,7 @@ public:
         std::visit(passEventToState, currentState);
     }
 
-    constexpr static types<States...> getStateTypes() { return {}; }
+    constexpr static types<States...> get_state_types() { return {}; }
 
 private:
     std::tuple<States...> states;

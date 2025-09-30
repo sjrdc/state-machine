@@ -7,7 +7,7 @@ class map_and_join
 {
 public:
     constexpr map_and_join(Operation operation)
-        : operation(operation)
+        : operation(std::move(operation))
     {
     }
 
