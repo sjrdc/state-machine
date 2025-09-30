@@ -37,4 +37,4 @@ private:
 };
 
 template <typename State>
-static constexpr auto stringify(Types<transition_to<State>>) { return StaticString{"transition_to<"} + stringify(Types<State>{}) + StaticString{">"}; }
+static constexpr auto stringify(Types<transition_to<State>>) { return static_string{"transition_to<"} + stringify(Types<State>{}) + static_string{">"}; }

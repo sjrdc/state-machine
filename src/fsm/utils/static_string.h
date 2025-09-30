@@ -1,32 +1,30 @@
 #pragma once
 
-#include <fsm/utils/arrayUtils.h>
+#include <fsm/utils/array_utils.h>
 
-#include <string>
-#include <cstdlib>
 #include <iostream>
 
 template <std::size_t N>
-class StaticString
+class static_string
 {
 public:
-    constexpr StaticString(const char (&chars)[N])
+    constexpr static_string(const char (&chars)[N])
         : chars(toStdArray(chars))
     {
     }
 
-    constexpr StaticString(const std::array<const char, N>& chars)
+    constexpr static_string(const std::array<const char, N>& chars)
         : chars(chars)
     {
     }
 
     template <std::size_t M>
-    constexpr StaticString<N + M - 1> operator+(const StaticString<M> &rhs) const
+    constexpr static_string<N + M - 1> operator+(const static_string<M> &rhs) const
     {
         return join(resize<N-1>(chars, '\0'), rhs.chars);
     }
 
-    constexpr bool operator==(const StaticString<N> &rhs) const
+    constexpr bool operator==(const static_string<N> &rhs) const
     {
         return areEqual(chars, rhs.chars);
     }
@@ -37,14 +35,14 @@ public:
     }
 
     template <std::size_t TargetLen>
-    constexpr StaticString<TargetLen + 1> changeLength(char fill) const
+    constexpr static_string<TargetLen + 1> changeLength(char fill) const
     {
         constexpr std::array<const char, 1> stringEnd{'\0'};
         return join(resize<TargetLen>(resize<N-1>(chars, fill), fill), stringEnd);
     }
 
     template <std::size_t M>
-    friend class StaticString;
+    friend class static_string;
 
     constexpr const char* data() const
     {
@@ -62,36 +60,36 @@ namespace
 
 [[maybe_unused]] constexpr void testAdding()
 {
-    constexpr StaticString lhs{"abc"};
-    constexpr StaticString rhs{"de"};
-    constexpr StaticString expected{"abcde"};
+    constexpr static_string lhs{"abc"};
+    constexpr static_string rhs{"de"};
+    constexpr static_string expected{"abcde"};
     static_assert(expected == lhs + rhs);
 }
 
 [[maybe_unused]] constexpr void testLength()
 {
-    constexpr StaticString lhs{"abc"};
+    constexpr static_string lhs{"abc"};
     constexpr size_t expected{3};
     static_assert(lhs.length() == expected);
 }
 
 [[maybe_unused]] constexpr void test0Length()
 {
-    constexpr StaticString lhs{""};
+    constexpr static_string lhs{""};
     constexpr size_t expected{0};
     static_assert(lhs.length() == expected);
 }
 
 [[maybe_unused]] constexpr void testChangeLength()
 {
-    constexpr StaticString shorter{"abc"};
-    constexpr StaticString longer{"abcdef"};
-    constexpr StaticString empty{""};
+    constexpr static_string shorter{"abc"};
+    constexpr static_string longer{"abcdef"};
+    constexpr static_string empty{""};
 
     constexpr size_t minLength{5};
-    constexpr StaticString expectedShorter{"abcxx"};
-    constexpr StaticString expectedLonger {"abcde"};
-    constexpr StaticString expectedEmpty  {"zzzzz"};
+    constexpr static_string expectedShorter{"abcxx"};
+    constexpr static_string expectedLonger {"abcde"};
+    constexpr static_string expectedEmpty  {"zzzzz"};
 
     constexpr auto res = shorter.changeLength<minLength>('x');
 

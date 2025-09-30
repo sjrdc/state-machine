@@ -9,4 +9,4 @@ public:
 	}
 };
 
-static constexpr auto stringify(Types<do_nothing>) { return StaticString{"do_nothing"}; }
+static constexpr auto stringify(Types<do_nothing>) { return static_string{"do_nothing"}; }

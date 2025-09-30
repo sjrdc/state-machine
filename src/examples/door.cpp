@@ -1,23 +1,23 @@
 #include <fsm/types/Types.h>
 #include <fsm/actions/utils.h>
 #include <fsm/types/utils.h>
-#include <fsm/utils/StaticString.h>
+#include <fsm/utils/static_string.h>
 
-#include "Door.h"
+#include "door.h"
 
 #include <iostream>
 
 
-#define STRINGIFY_IMPL(TYPE) [[maybe_unused]] static constexpr auto stringify(Types<TYPE>) { return StaticString{#TYPE}; }
+#define STRINGIFY_IMPL(TYPE) [[maybe_unused]] static constexpr auto stringify(Types<TYPE>) { return static_string{#TYPE}; }
 
-STRINGIFY_IMPL(OpenEvent)
-STRINGIFY_IMPL(CloseEvent)
-STRINGIFY_IMPL(LockEvent)
-STRINGIFY_IMPL(UnlockEvent)
+STRINGIFY_IMPL(open_event)
+STRINGIFY_IMPL(close_event)
+STRINGIFY_IMPL(lock_event)
+STRINGIFY_IMPL(unlock_event)
 
-STRINGIFY_IMPL(ClosedState)
-STRINGIFY_IMPL(OpenState)
-STRINGIFY_IMPL(LockedState)
+STRINGIFY_IMPL(closed_state)
+STRINGIFY_IMPL(open_state)
+STRINGIFY_IMPL(locked_state)
 
 struct Header {};
 
@@ -25,7 +25,7 @@ struct SimpleStringifier
 {
     constexpr auto operator()(Types<Header>) const
     {
-        return StaticString{""};
+        return static_string{""};
     }
 
     template <typename T>
@@ -40,7 +40,7 @@ struct ConstantWidthStringifier
 {
     constexpr auto operator()(Types<Header>) const
     {
-        return StaticString{""}.template changeLength<Width>(' ');
+        return static_string{""}.template changeLength<Width>(' ');
     }
 
     template <typename T>
@@ -68,7 +68,7 @@ public:
     constexpr auto operator()(Types<Event>) const
     {
         auto action = resolve_action{}(Types<Types<State, Event>>{});
-        return StaticString{" | "} + str(action);
+        return static_string{" | "} + str(action);
     }
 
 private:
@@ -92,7 +92,7 @@ public:
     template <typename Event>
     constexpr auto operator()(Types<Event> event) const
     {
-        return StaticString{" | "} + str(event);
+        return static_string{" | "} + str(event);
     }
 
 private:
@@ -111,7 +111,7 @@ public:
     template <typename State>
     constexpr auto operator()(Types<State> state) const
     {
-        return (Types<State, Events...>{} | MapAndJoin{GenerateRow{str, state}}) + StaticString{"\n"};
+        return (Types<State, Events...>{} | MapAndJoin{GenerateRow{str, state}}) + static_string{"\n"};
     }
 
 private:
@@ -162,7 +162,7 @@ constexpr auto generatePrettyTransitionTable(Types<StateTypes...> states, Types<
 
 int main()
 {
-    std::cout << generateTransitionTable(door::getStateTypes(), Types<OpenEvent, CloseEvent, LockEvent, UnlockEvent>{}).data() << std::endl;
-    std::cout << generatePrettyTransitionTable(door::getStateTypes(), Types<OpenEvent, CloseEvent, LockEvent, UnlockEvent>{}).data() << std::endl;
+    std::cout << generateTransitionTable(door::getStateTypes(), Types<open_event, close_event, lock_event, unlock_event>{}).data() << std::endl;
+    std::cout << generatePrettyTransitionTable(door::getStateTypes(), Types<open_event, close_event, lock_event, unlock_event>{}).data() << std::endl;
     return 0;
 }
