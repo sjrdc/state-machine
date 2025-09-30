@@ -8,7 +8,7 @@
 #include <iostream>
 
 
-#define STRINGIFY_IMPL(TYPE) [[maybe_unused]] static constexpr auto stringify(Types<TYPE>) { return static_string{#TYPE}; }
+#define STRINGIFY_IMPL(TYPE) static constexpr auto stringify(Types<TYPE>) { return static_string{#TYPE}; }
 
 STRINGIFY_IMPL(open_event)
 STRINGIFY_IMPL(close_event)

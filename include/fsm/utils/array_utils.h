@@ -56,7 +56,7 @@ namespace tests
 namespace
 {
 
-[[maybe_unused]] constexpr void testToStdArray()
+constexpr void testToStdArray()
 {
     constexpr int input[] = {1, 2, 3};
     constexpr auto output = toStdArray(input);
@@ -64,7 +64,7 @@ namespace
     static_assert(areEqual(expected, output));
 }
 
-[[maybe_unused]] constexpr void testJoin()
+constexpr void testJoin()
 {
     constexpr std::array inputA = {1, 2, 3};
     constexpr std::array inputB = {4, 5};
@@ -72,7 +72,7 @@ namespace
     static_assert(areEqual(expected, join(inputA, inputB)));
 }
 
-[[maybe_unused]] constexpr void testResize()
+constexpr void testResize()
 {
     constexpr std::array input = {1, 2, 3};
     constexpr std::array expectedShorter = {1, 2};

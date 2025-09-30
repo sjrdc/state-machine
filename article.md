@@ -186,7 +186,7 @@ Awesome! :)
 Most of the work done so far was related to manipulating types. It's time to convert those types into compile-time strings that we can print later on. Let's assume that for user-defined states and events exists a 'stringification' function. To eliminate a bit of boilerplate, we can write a preprocessor macro to generate all the needed implementations:
 
 ```cpp
-#define STRINGIFY_IMPL(TYPE) [[maybe_unused]] static constexpr auto stringify(Types<TYPE>) { return StaticString{#TYPE}; }
+#define STRINGIFY_IMPL(TYPE) static constexpr auto stringify(Types<TYPE>) { return StaticString{#TYPE}; }
 
 STRINGIFY_IMPL(OpenEvent)
 STRINGIFY_IMPL(CloseEvent)
