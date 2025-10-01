@@ -1,9 +1,11 @@
 #pragma once
 
-template <typename... Handlers>
-class will : public Handlers...
+namespace fsm
 {
-public:
-	using Handlers::handle...;
-};
-
+	template <typename... Handlers>
+	class will : public Handlers...
+	{
+	public:
+		using Handlers::handle...;
+	};
+}

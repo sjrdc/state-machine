@@ -1,12 +1,14 @@
 #pragma once
-
-template <typename Action>
-class by_default
+namespace fsm
 {
-public:
-	template <typename Event>
-	Action handle(const Event&) const
+	template <typename Action>
+	class by_default
 	{
-		return Action{};
-	}
-};
+	public:
+		template <typename Event>
+		Action handle(const Event&) const
+		{
+			return Action{};
+		}
+	};
+}

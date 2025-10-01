@@ -32,18 +32,18 @@ struct closed_state;
 struct open_state;
 class locked_state;
 
-struct closed_state : public will<by_default<do_nothing>,
-                                 on<lock_event, transition_to<locked_state>>,
-                                 on<open_event, transition_to<open_state>>>
+struct closed_state : public fsm::will<fsm::by_default<fsm::do_nothing>,
+                                           fsm::on<lock_event, fsm::transition_to<locked_state>>,
+                                           fsm::on<open_event, fsm::transition_to<open_state>>>
 {
 };
 
-struct open_state : public will<by_default<do_nothing>,
-                               on<close_event, transition_to<closed_state>>>
+struct open_state : public fsm::will<fsm::by_default<fsm::do_nothing>,
+                                         fsm::on<close_event, fsm::transition_to<closed_state>>>
 {
 };
 
-class locked_state : public by_default<do_nothing>
+class locked_state : public fsm::by_default<fsm::do_nothing>
 {
 public:
     using by_default::handle;
@@ -58,16 +58,16 @@ public:
         key = e.new_key;
     }
 
-    may<transition_to<closed_state>> handle(const unlock_event& e)
+    fsm::may<fsm::transition_to<closed_state>> handle(const unlock_event& e)
     {
         if (e.key == key) {
-            return transition_to<closed_state>{};
+            return fsm::transition_to<closed_state>{};
         }
-        return do_nothing{};
+        return fsm::do_nothing{};
     }
 
 private:
     uint32_t key;
 };
 
-using door = state_machine<closed_state, open_state, locked_state>;
+using door = fsm::state_machine<closed_state, open_state, locked_state>;

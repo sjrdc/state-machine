@@ -7,6 +7,7 @@
 
 #include <iostream>
 
+using namespace fsm;
 
 #define STRINGIFY_IMPL(TYPE) static constexpr auto stringify(types<TYPE>) { return static_string{#TYPE}; }
 

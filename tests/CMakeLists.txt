@@ -15,7 +15,7 @@ add_executable(tests static_string.cpp main.cpp)
 target_include_directories(tests
   PRIVATE ${CMAKE_SOURCE_DIR}/src
 )
-target_link_libraries(tests easyfsm gtest_main)
+target_link_libraries(tests fsm gtest_main)
 
 include(GoogleTest)
 gtest_discover_tests(tests

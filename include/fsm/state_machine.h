@@ -5,44 +5,47 @@
 #include <tuple>
 #include <variant>
 
-template <typename... States>
-class state_machine
+namespace fsm
 {
-public:
-    state_machine() = default;
-
-    state_machine(States... states)
-        : states(std::move(states)...)
+    template <typename... States>
+    class state_machine
     {
-    }
+    public:
+        state_machine() = default;
 
-    template <typename State>
-    State& transition_to()
-    {
-        State& state = std::get<State>(states);
-        currentState = &state;
-        return state;
-    }
+        state_machine(States... states)
+            : states(std::move(states)...)
+        {
+        }
 
-    template <typename Event>
-    void handle(const Event& event)
-    {
-        handleBy(event, *this);
-    }
+        template <typename State>
+        State& transition_to()
+        {
+            State& state = std::get<State>(states);
+            currentState = &state;
+            return state;
+        }
 
-    template <typename Event, typename Machine>
-    void handleBy(const Event& event, Machine& machine)
-    {
-        auto passEventToState = [&machine, &event] (auto statePtr) {
-            auto action = statePtr->handle(event);
-            action.execute(machine, *statePtr, event);
-        };
-        std::visit(passEventToState, currentState);
-    }
+        template <typename Event>
+        void handle(const Event& event)
+        {
+            handleBy(event, *this);
+        }
 
-    constexpr static types<States...> get_state_types() { return {}; }
+        template <typename Event, typename Machine>
+        void handleBy(const Event& event, Machine& machine)
+        {
+            auto passEventToState = [&machine, &event](auto statePtr) {
+                auto action = statePtr->handle(event);
+                action.execute(machine, *statePtr, event);
+                };
+            std::visit(passEventToState, currentState);
+        }
 
-private:
-    std::tuple<States...> states;
-    std::variant<States*...> currentState{ &std::get<0>(states) };
-};
+        constexpr static types<States...> get_state_types() { return {}; }
+
+    private:
+        std::tuple<States...> states;
+        std::variant<States*...> currentState{ &std::get<0>(states) };
+    };
+}

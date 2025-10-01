@@ -4,19 +4,22 @@
 
 #include <utility>
 
-class resolve_action
+namespace fsm
 {
-public:
-    template <typename State, typename Event>
-    constexpr auto operator()(types<State, Event>)
+    class resolve_action
     {
-        using Action = decltype(std::declval<State>().handle(std::declval<Event>()));
-        return types<Action>{};
-    }
+    public:
+        template <typename State, typename Event>
+        constexpr auto operator()(types<State, Event>)
+        {
+            using Action = decltype(std::declval<State>().handle(std::declval<Event>()));
+            return types<Action>{};
+        }
 
-    template <typename State, typename Event>
-    constexpr auto operator()(types<types<State, Event>>)
-    {
-        return (*this)(types<State, Event>{});
-    }
-};
+        template <typename State, typename Event>
+        constexpr auto operator()(types<types<State, Event>>)
+        {
+            return (*this)(types<State, Event>{});
+        }
+    };
+}

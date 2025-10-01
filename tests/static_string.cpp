@@ -2,6 +2,8 @@
 
 #include "gtest/gtest.h"
 
+using namespace fsm;
+
 TEST(static_string, can_concatenate)
 {
     constexpr static_string lhs{ "abc" };
